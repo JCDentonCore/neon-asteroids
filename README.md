@@ -14,6 +14,7 @@ godot --path ~/neon-asteroids
 - ESPACIO — disparar (máx. 4 balas)
 - ENTER — empezar / reiniciar
 - F12 — screenshot a `user://auto_NN.png`
+- **Mando de juego** — soportado (InputMap: giro en eje X, empuje en eje Y, disparo en eje 5)
 
 ## Autopiloto (verificación)
 
@@ -23,7 +24,13 @@ godot --path ~/neon-asteroids -- -auto
 
 Con `-auto` la nave juega sola y guarda screenshots automáticos
 (frames 90/240/480/720/1000) en
-`~/.local/share/godot/app_userdata/Neon Asteroids/`.
+`~/.local/share/godot/app_userdata/Neón Asteroides/`.
+
+## Créditos
+
+- **Fabiosarts** — audio (disparo láser, propulsor y explosión), InputMap con
+  soporte de mando de juego, y ajuste del ritmo del juego (velocidad de la
+  nave, de las balas y de las rocas). Gracias por el fork de este proyecto.
 
 ## Licencia
 
