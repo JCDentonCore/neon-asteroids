@@ -93,7 +93,7 @@ func _autopilot() -> Array:
 		for r in game.rocks:
 			if not is_instance_valid(r):
 				continue
-			var d: Vector3 = r.global_position - global_position
+			var d: Vector3 = G.torus_delta(global_position, r.global_position)
 			var l := d.length()
 			if l < 28.0 and l < bd:
 				bd = l
@@ -120,7 +120,7 @@ func _autopilot_fire() -> bool:
 		for r in game.rocks:
 			if not is_instance_valid(r):
 				continue
-			var d: Vector3 = r.global_position - global_position
+			var d: Vector3 = G.torus_delta(global_position, r.global_position)
 			var l := d.length()
 			if l < 60.0 and l > 0.0 and h.dot(d / l) > 0.965:
 				return true

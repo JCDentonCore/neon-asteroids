@@ -5,6 +5,7 @@ enum State { TITLE, PLAY, DYING, GAMEOVER }
 
 const HI_PATH := "user://hi.cfg"
 const SHOOT_FRAMES := [90, 240, 480, 720, 1000]
+const INVULN_TIME := 2.5
 
 var state := State.TITLE
 var score := 0
@@ -20,6 +21,7 @@ var _auto := false
 var _t := 0.0
 var _wave_timer := 0.0
 var _dying_timer := 0.0
+var _invuln_timer := 0.0
 var _msg_hold := 0.0
 var _shot_idx := 0
 var _frame_count := 0
@@ -30,6 +32,10 @@ var _wave_label: Label = null
 var _lives_label: Label = null
 var _msg_label: Label = null
 var _sub_label: Label = null
+
+var _cam: Camera3D = null
+var _cam_base := Vector3(0.0, 70.0, 57.0)
+var _shake := 0.0
 
 var _fire_snd: AudioStreamPlayer = null
 
@@ -76,6 +82,13 @@ func _physics_process(delta: float) -> void:
 			if Input.is_action_pressed("iniciar"):
 				_start_game()
 		State.PLAY:
+			# B1: brief invulnerability after spawn/respawn, with a blink.
+			if _invuln_timer > 0.0:
+				_invuln_timer -= delta
+				if ship:
+					ship.visible = fmod(_t * 12.0, 1.0) < 0.55
+			elif ship and ship.alive:
+				ship.visible = true
 			_check_collisions()
 			if wave > 0 and rocks.is_empty():
 				_wave_timer += delta
@@ -86,6 +99,7 @@ func _physics_process(delta: float) -> void:
 			if _dying_timer <= 0.0:
 				if lives > 0:
 					ship.reset(Vector3.ZERO, -PI / 2.0)
+					_invuln_timer = INVULN_TIME
 					state = State.PLAY
 				else:
 					_save_hi()
@@ -94,6 +108,14 @@ func _physics_process(delta: float) -> void:
 		State.GAMEOVER:
 			if Input.is_action_pressed("iniciar"):
 				_start_game()
+
+	# B2: screen shake — decays every frame, camera returns to base when idle.
+	if _cam:
+		_shake = maxf(0.0, _shake - 3.5 * delta)
+		if _shake > 0.001:
+			_cam.position = _cam_base + Vector3(randf_range(-1.0, 1.0), 0.0, randf_range(-1.0, 1.0)) * _shake
+		else:
+			_cam.position = _cam_base
 
 	if _msg_hold > 0.0:
 		_msg_hold -= delta
@@ -123,6 +145,7 @@ func _start_game() -> void:
 	_clear_actors()
 	ship.reset(Vector3.ZERO, -PI / 2.0)
 	ship.alive = true
+	_invuln_timer = INVULN_TIME
 	state = State.PLAY
 	_set_message("", "", 0.0)
 	_start_wave(1)
@@ -145,6 +168,9 @@ func _start_wave(n: int) -> void:
 		var r := _spawn_rock(0, pos, dir * speed)
 		rocks.append(r)
 	_set_message("OLEADA %d" % n, "", 1.3)
+	# A2: the wave label only refreshed on score/kill changes, so it stayed
+	# stale from wave 2 on. Sync it here.
+	_update_hud()
 
 
 func _clear_actors() -> void:
@@ -175,6 +201,8 @@ func _destroy_rock(r: Rock, by_bullet: bool) -> void:
 	if by_bullet:
 		score += G.SCORES[r.size_idx]
 		_update_hud()
+		# B2: small kick per hit, bigger rocks hit harder.
+		_shake = maxf(_shake, 0.2 + 0.15 * float(2 - r.size_idx))
 	if r.size_idx < 2:
 		var child_idx := r.size_idx + 1
 		for k in 2:
@@ -199,6 +227,7 @@ func _kill_ship() -> void:
 	_update_hud()
 	state = State.DYING
 	_dying_timer = 1.5
+	_shake = 1.4
 	if lives > 0:
 		_set_message("NAVE PERDIDA", "", 1.4)
 	else:
@@ -232,11 +261,13 @@ func _check_collisions() -> void:
 		for k in range(dead_idx.size() - 1, -1, -1):
 			bullets.remove_at(dead_idx[k])
 
-	if ship and ship.alive:
+	if ship and ship.alive and _invuln_timer <= 0.0:
 		for r in rocks:
 			if not is_instance_valid(r):
 				continue
-			if ship.global_position.distance_to(r.global_position) < r.radius + G.SHIP_RADIUS:
+			# A1: ship and rock both wrap, so use the torus delta — the raw
+			# delta can read ~2*HALF across the seam while they are adjacent.
+			if G.torus_delta(ship.global_position, r.global_position).length() < r.radius + G.SHIP_RADIUS:
 				_kill_ship()
 				break
 
@@ -398,11 +429,11 @@ func _build_world() -> void:
 	we.environment = env
 	add_child(we)
 
-	var cam := Camera3D.new()
-	cam.position = Vector3(0.0, 70.0, 57.0)
-	cam.fov = 58.0
-	add_child(cam)
-	cam.look_at(Vector3.ZERO, Vector3.UP)
+	_cam = Camera3D.new()
+	_cam.position = _cam_base
+	_cam.fov = 58.0
+	add_child(_cam)
+	_cam.look_at(Vector3.ZERO, Vector3.UP)
 
 	var mat_grid := G.unshaded(G.GRID_COLOR, 1.0)
 	var step := 10.0

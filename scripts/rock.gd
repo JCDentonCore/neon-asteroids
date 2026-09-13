@@ -49,8 +49,6 @@ func _build_mesh() -> void:
 		var j := rng.randf_range(0.72, 1.32)
 		pts.append(v.normalized() * radius * j)
 
-	var hull := ConvexPolygonShape3D.new()
-	hull.points = pts
 	var faces := G.convex_hull_faces(pts)
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)

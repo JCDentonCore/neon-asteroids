@@ -41,6 +41,23 @@ static func wrap_pos(p: Vector3) -> Vector3:
 	return Vector3(x - ARENA_HALF, 0.0, z - ARENA_HALF)
 
 
+static func torus_delta(a: Vector3, b: Vector3) -> Vector3:
+	# Shortest displacement from a to b in the wrapped arena. The raw delta
+	# can read ~2*HALF across the seam while a and b are actually adjacent.
+	# NOTE: only for pairs where BOTH positions wrap (ship, rocks). Bullets
+	# die at the edge and must be tested flat, or the seam shift creates
+	# phantom hits.
+	var span := ARENA_HALF * 2.0
+	return Vector3(_torus_axis(a.x, b.x, span), 0.0, _torus_axis(a.z, b.z, span))
+
+
+static func _torus_axis(ua: float, ub: float, span: float) -> float:
+	var r := fmod(ub - ua + span * 0.5, span)
+	if r < 0.0:
+		r += span
+	return r - span * 0.5
+
+
 static func unshaded(color: Color, energy: float = 2.0, alpha: float = 1.0) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
 	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
