@@ -7,7 +7,7 @@ starfield, puntaje, vidas, olas y récord persistente.
 ## Jugar
 
 ```fish
-godot --path /home/jcgolinux/neon-asteroids
+godot --path ~/neon-asteroids
 ```
 
 - WASD / flechas — girar y empujar
@@ -18,7 +18,7 @@ godot --path /home/jcgolinux/neon-asteroids
 ## Autopiloto (verificación)
 
 ```fish
-godot --path /home/jcgolinux/neon-asteroids -- -auto
+godot --path ~/neon-asteroids -- -auto
 ```
 
 Con `-auto` la nave juega sola y guarda screenshots automáticos
