@@ -28,9 +28,14 @@ Con `-auto` la nave juega sola y guarda screenshots automáticos
 
 ## Créditos
 
+- **JC Gaming On Linux** - Idea original, uso de motor godot, caracteristicas, testeo, binarios de Linux/Windows/Android
+
+- **JC IA (La IA de JC Gaming On Linux)** - Desarrollo, programación, debug, etc
+
 - **Fabiosarts** — audio (disparo láser, propulsor y explosión), InputMap con
   soporte de mando de juego, y ajuste del ritmo del juego (velocidad de la
   nave, de las balas y de las rocas). Gracias por el fork de este proyecto.
+  
 
 ## Licencia
 
