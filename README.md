@@ -6,6 +6,15 @@ starfield, puntaje, vidas, olas y récord persistente.
 
 ## Jugar
 
+### Binarios (sin instalar nada)
+
+Descargá desde la [release v1.0.0](https://github.com/JCDentonCore/neon-asteroids/releases/tag/v1.0.0):
+
+- **Linux x86_64**: `neon-asteroids-linux-x86_64` → `chmod +x` y ejecutá
+- **Windows x86_64**: `neon-asteroids-windows-x86_64.exe` → doble click
+
+### Desde código
+
 ```fish
 godot --path ~/neon-asteroids
 ```
